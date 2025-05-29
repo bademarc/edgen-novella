@@ -102,6 +102,51 @@ class VisualNovelGame {
     });
 
     console.log('Mobile viewport initialized with constraints');
+
+    // Force image scaling on mobile
+    this.forceImageScaling();
+  }
+
+  // Force proper image scaling on mobile devices
+  forceImageScaling() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // Function to scale images
+      const scaleImages = () => {
+        const images = document.querySelectorAll('.menu-background img, .game-background img, .settings-background img');
+        images.forEach(img => {
+          img.style.width = '100vw';
+          img.style.height = '100vh';
+          img.style.objectFit = 'contain';
+          img.style.objectPosition = 'center';
+          img.style.maxWidth = '100vw';
+          img.style.maxHeight = '100vh';
+        });
+
+        // Scale all other images too
+        const allImages = document.querySelectorAll('img');
+        allImages.forEach(img => {
+          if (!img.closest('.menu-background, .game-background, .settings-background')) {
+            img.style.maxWidth = '100vw';
+            img.style.maxHeight = '100vh';
+            img.style.objectFit = 'contain';
+          }
+        });
+      };
+
+      // Scale images immediately
+      scaleImages();
+
+      // Scale images when they load
+      document.addEventListener('DOMContentLoaded', scaleImages);
+
+      // Scale images when new content is added
+      const observer = new MutationObserver(scaleImages);
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      console.log('Mobile image scaling enforced');
+    }
   }
 
   // Setup global error handling
