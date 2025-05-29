@@ -8,7 +8,7 @@ class GameManager {
     this.sceneViewed = false; // Track if current scene has been fully viewed
     this.viewTimer = null;
     this.minViewTime = 1000; // Minimum time to view a scene (1 second)
-    
+
     // DOM elements
     this.screens = {
       menu: document.getElementById('main-menu'),
@@ -16,18 +16,18 @@ class GameManager {
       settings: document.getElementById('settings-screen'),
       loading: document.getElementById('loading-screen')
     };
-    
+
     this.images = {
       menu: document.getElementById('menu-image'),
       scene: document.getElementById('scene-image'),
       settingsBg: document.getElementById('settings-bg')
     };
-    
+
     this.elements = {
       sceneNumber: document.getElementById('scene-number'),
       clickIndicator: document.querySelector('.click-indicator')
     };
-    
+
     // Initialize the game
     this.init();
   }
@@ -41,12 +41,12 @@ class GameManager {
 
   // Load menu image (image 0)
   loadMenuImage() {
-    this.images.menu.src = './images/0_menu.png';
-    this.images.settingsBg.src = './images/0_menu.png'; // Use menu image as settings background
-    
+    this.images.menu.src = '/images/0_menu.png';
+    this.images.settingsBg.src = '/images/0_menu.png'; // Use menu image as settings background
+
     this.images.menu.onerror = () => {
       console.warn('Menu image failed to load, trying alternative path');
-      this.images.menu.src = './images/0.png'; // Fallback
+      this.images.menu.src = '/images/0.png'; // Fallback
     };
   }
 
@@ -56,13 +56,13 @@ class GameManager {
     document.getElementById('play-btn').addEventListener('click', () => this.startGame());
     document.getElementById('settings-btn').addEventListener('click', () => this.showSettings());
     document.getElementById('back-btn').addEventListener('click', () => this.showMenu());
-    
+
     // Game screen click to advance
     this.screens.game.addEventListener('click', (e) => this.handleGameClick(e));
-    
+
     // Prevent context menu on game screen
     this.screens.game.addEventListener('contextmenu', (e) => e.preventDefault());
-    
+
     // Keyboard controls
     document.addEventListener('keydown', (e) => this.handleKeyPress(e));
   }
@@ -70,13 +70,13 @@ class GameManager {
   // Handle game screen clicks
   handleGameClick(e) {
     if (this.gameState !== 'playing') return;
-    
+
     // Check if scene has been viewed for minimum time
     if (!this.sceneViewed) {
       this.showMessage('Please wait a moment before continuing...');
       return;
     }
-    
+
     this.nextScene();
   }
 
@@ -102,17 +102,17 @@ class GameManager {
   // Start the game
   async startGame() {
     this.showScreen('loading');
-    
+
     // Start background music
     await this.audioManager.startBackgroundMusic();
-    
+
     // Reset game state
     this.currentScene = 1;
     this.gameState = 'playing';
-    
+
     // Load first scene
     await this.loadScene(this.currentScene);
-    
+
     this.showScreen('game');
   }
 
@@ -120,22 +120,22 @@ class GameManager {
   async loadScene(sceneNumber) {
     try {
       this.sceneViewed = false;
-      
+
       // Update scene counter
       this.elements.sceneNumber.textContent = `Scene ${sceneNumber}`;
-      
+
       // Load scene image
-      const imagePath = `./images/${sceneNumber}.png`;
+      const imagePath = `/images/${sceneNumber}.png`;
       await this.loadImage(this.images.scene, imagePath);
-      
+
       // Play corresponding sound effect
       await this.audioManager.playSoundEffect(sceneNumber);
-      
+
       // Start view timer
       this.startViewTimer();
-      
+
       console.log(`Loaded scene ${sceneNumber}`);
-      
+
     } catch (error) {
       console.error(`Failed to load scene ${sceneNumber}:`, error);
       this.showMessage('Failed to load scene. Please try again.');
@@ -156,12 +156,12 @@ class GameManager {
     if (this.viewTimer) {
       clearTimeout(this.viewTimer);
     }
-    
+
     this.viewTimer = setTimeout(() => {
       this.sceneViewed = true;
       this.elements.clickIndicator.style.opacity = '1';
     }, this.minViewTime);
-    
+
     // Hide click indicator initially
     this.elements.clickIndicator.style.opacity = '0.3';
   }
@@ -172,7 +172,7 @@ class GameManager {
       this.endGame();
       return;
     }
-    
+
     this.currentScene++;
     await this.loadScene(this.currentScene);
   }
@@ -204,7 +204,7 @@ class GameManager {
     Object.values(this.screens).forEach(screen => {
       screen.classList.remove('active');
     });
-    
+
     // Show target screen
     if (this.screens[screenName]) {
       this.screens[screenName].classList.add('active');
@@ -229,9 +229,9 @@ class GameManager {
       font-size: 1.2rem;
       text-align: center;
     `;
-    
+
     document.body.appendChild(messageEl);
-    
+
     // Remove after 2 seconds
     setTimeout(() => {
       if (messageEl.parentNode) {

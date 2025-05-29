@@ -8,10 +8,10 @@ class AudioManager {
       music: 0.3, // -40dB equivalent (approximately 0.01 to 0.1)
       sfx: 0.7
     };
-    
+
     // Load settings from localStorage
     this.loadSettings();
-    
+
     // Initialize background music
     this.initBackgroundMusic();
   }
@@ -19,23 +19,23 @@ class AudioManager {
   // Initialize background music with looping
   initBackgroundMusic() {
     try {
-      this.backgroundMusic = new Audio('./Music Background/Classroom Vibes.mp3');
+      this.backgroundMusic = new Audio('/Music Background/Classroom Vibes.mp3');
       this.backgroundMusic.loop = true;
       this.backgroundMusic.preload = 'auto';
-      
+
       // Set initial volume (-40dB equivalent)
       this.updateMusicVolume();
-      
+
       // Handle loading errors
       this.backgroundMusic.addEventListener('error', (e) => {
         console.warn('Background music failed to load:', e);
       });
-      
+
       // Auto-play when ready (with user interaction)
       this.backgroundMusic.addEventListener('canplaythrough', () => {
         console.log('Background music loaded successfully');
       });
-      
+
     } catch (error) {
       console.warn('Failed to initialize background music:', error);
     }
@@ -44,7 +44,7 @@ class AudioManager {
   // Start background music (requires user interaction)
   async startBackgroundMusic() {
     if (!this.backgroundMusic) return;
-    
+
     try {
       // Reset to beginning and play
       this.backgroundMusic.currentTime = 0;
@@ -60,7 +60,7 @@ class AudioManager {
   // Retry background music on user interaction
   async retryBackgroundMusic() {
     if (!this.backgroundMusic || !this.backgroundMusic.paused) return;
-    
+
     try {
       await this.backgroundMusic.play();
       console.log('Background music resumed');
@@ -79,22 +79,22 @@ class AudioManager {
       }
 
       // Load and play new sound effect
-      const soundPath = `./sounds/${sceneNumber}.wav`;
+      const soundPath = `/sounds/${sceneNumber}.wav`;
       this.currentSoundEffect = new Audio(soundPath);
       this.currentSoundEffect.preload = 'auto';
-      
+
       // Set volume
       this.updateSfxVolume();
-      
+
       // Play the sound effect
       await this.currentSoundEffect.play();
       console.log(`Playing sound effect: ${soundPath}`);
-      
+
       // Clean up when finished
       this.currentSoundEffect.addEventListener('ended', () => {
         this.currentSoundEffect = null;
       });
-      
+
     } catch (error) {
       console.warn(`Failed to play sound effect for scene ${sceneNumber}:`, error);
     }
