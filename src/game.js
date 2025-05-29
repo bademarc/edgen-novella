@@ -60,11 +60,36 @@ class GameManager {
     // Game screen click to advance
     this.screens.game.addEventListener('click', (e) => this.handleGameClick(e));
 
+    // Mobile touch events for better responsiveness
+    this.screens.game.addEventListener('touchend', (e) => {
+      e.preventDefault(); // Prevent double-tap zoom
+      this.handleGameClick(e);
+    });
+
     // Prevent context menu on game screen
     this.screens.game.addEventListener('contextmenu', (e) => e.preventDefault());
 
+    // Prevent zoom on double tap
+    this.screens.game.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    });
+
     // Keyboard controls
     document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        this.handleOrientationChange();
+      }, 100);
+    });
+
+    // Handle window resize for mobile browsers
+    window.addEventListener('resize', () => {
+      this.handleResize();
+    });
   }
 
   // Handle game screen clicks
@@ -240,13 +265,39 @@ class GameManager {
     }, 2000);
   }
 
+  // Handle orientation changes
+  handleOrientationChange() {
+    // Force a repaint to handle orientation change issues
+    document.body.style.height = window.innerHeight + 'px';
+
+    // Update viewport height for mobile browsers
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+    console.log('Orientation changed, viewport updated');
+  }
+
+  // Handle window resize
+  handleResize() {
+    // Update viewport height for mobile browsers with dynamic toolbars
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+
+  // Check if device is mobile
+  isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 768 && window.innerHeight <= 1024);
+  }
+
   // Get current game state
   getState() {
     return {
       currentScene: this.currentScene,
       maxScene: this.maxScene,
       gameState: this.gameState,
-      sceneViewed: this.sceneViewed
+      sceneViewed: this.sceneViewed,
+      isMobile: this.isMobile()
     };
   }
 }

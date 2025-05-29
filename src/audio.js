@@ -52,8 +52,11 @@ class AudioManager {
       console.log('Background music started');
     } catch (error) {
       console.warn('Failed to start background music:', error);
-      // Retry on next user interaction
-      document.addEventListener('click', () => this.retryBackgroundMusic(), { once: true });
+      // Retry on next user interaction (especially important for mobile)
+      const retryEvents = ['click', 'touchend', 'keydown'];
+      retryEvents.forEach(event => {
+        document.addEventListener(event, () => this.retryBackgroundMusic(), { once: true });
+      });
     }
   }
 
