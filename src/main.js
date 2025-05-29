@@ -1,0 +1,154 @@
+import './style.css'
+import AudioManager from './audio.js'
+import GameManager from './game.js'
+import SettingsManager from './settings.js'
+
+// Visual Novel Game - Main Entry Point
+class VisualNovelGame {
+  constructor() {
+    this.audioManager = null;
+    this.gameManager = null;
+    this.settingsManager = null;
+
+    this.init();
+  }
+
+  // Initialize the game
+  async init() {
+    try {
+      console.log('Initializing Visual Novel Game...');
+
+      // Wait for DOM to be fully loaded
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => {
+          document.addEventListener('DOMContentLoaded', resolve);
+        });
+      }
+
+      // Initialize managers
+      this.audioManager = new AudioManager();
+      this.gameManager = new GameManager(this.audioManager);
+      this.settingsManager = new SettingsManager(this.audioManager);
+
+      // Setup global error handling
+      this.setupErrorHandling();
+
+      // Setup performance monitoring
+      this.setupPerformanceMonitoring();
+
+      console.log('Visual Novel Game initialized successfully!');
+
+    } catch (error) {
+      console.error('Failed to initialize game:', error);
+      this.showErrorMessage('Failed to initialize game. Please refresh the page.');
+    }
+  }
+
+  // Setup global error handling
+  setupErrorHandling() {
+    window.addEventListener('error', (event) => {
+      console.error('Global error:', event.error);
+      this.showErrorMessage('An unexpected error occurred.');
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      this.showErrorMessage('An unexpected error occurred.');
+    });
+  }
+
+  // Setup performance monitoring
+  setupPerformanceMonitoring() {
+    // Monitor memory usage (if available)
+    if (performance.memory) {
+      setInterval(() => {
+        const memory = performance.memory;
+        if (memory.usedJSHeapSize > memory.jsHeapSizeLimit * 0.9) {
+          console.warn('High memory usage detected');
+        }
+      }, 30000); // Check every 30 seconds
+    }
+
+    // Monitor frame rate
+    let lastTime = performance.now();
+    let frameCount = 0;
+
+    const checkFrameRate = (currentTime) => {
+      frameCount++;
+
+      if (currentTime - lastTime >= 1000) {
+        const fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+
+        if (fps < 30) {
+          console.warn(`Low frame rate detected: ${fps} FPS`);
+        }
+      }
+
+      requestAnimationFrame(checkFrameRate);
+    };
+
+    requestAnimationFrame(checkFrameRate);
+  }
+
+  // Show error message to user
+  showErrorMessage(message) {
+    const errorEl = document.createElement('div');
+    errorEl.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+      ">
+        <div style="
+          text-align: center;
+          padding: 2rem;
+          background: #333;
+          border-radius: 8px;
+          max-width: 400px;
+        ">
+          <h2 style="color: #e74c3c; margin-bottom: 1rem;">Error</h2>
+          <p style="margin-bottom: 1rem;">${message}</p>
+          <button onclick="location.reload()" style="
+            padding: 0.5rem 1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          ">Reload Page</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(errorEl);
+  }
+
+  // Get game instance (for debugging)
+  getGameState() {
+    return {
+      audio: this.audioManager?.getVolumes(),
+      game: this.gameManager?.getState(),
+      settings: this.settingsManager?.getCurrentSettings()
+    };
+  }
+}
+
+// Initialize the game when the script loads
+const game = new VisualNovelGame();
+
+// Make game instance available globally for debugging
+window.visualNovelGame = game;
+
+// Export for potential module usage
+export default VisualNovelGame;
